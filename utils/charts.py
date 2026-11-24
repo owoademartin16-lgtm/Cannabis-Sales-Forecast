@@ -261,8 +261,9 @@ def dow_bars(daily: pd.DataFrame, height: int = 330) -> go.Figure:
 
 def month_of_year(monthly: pd.DataFrame, height: int = 330) -> go.Figure:
     df = monthly.copy()
-    df["avg_day"] = df["sales"] / df["month"].dt.days_in_month
-    g = df.groupby("month_num")["avg_day"].mean()
+    df["days"] = df["month"].dt.days_in_month
+    totals = df.groupby("month_num")[["sales", "days"]].sum()
+    g = totals["sales"] / totals["days"]
     colors = [t.YELLOW if m >= 10 else _rgba(t.ORANGE, 0.75) for m in g.index]
     fig = go.Figure(go.Bar(
         x=an.MONTH_ABBR, y=g.values, marker=dict(color=colors, line=dict(width=0)),
