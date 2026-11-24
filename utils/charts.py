@@ -9,9 +9,9 @@ import plotly.graph_objects as go
 from . import analysis as an
 from . import theme as t
 
-FONT = "Manrope, -apple-system, BlinkMacSystemFont, sans-serif"
-DISPLAY = "Bebas Neue, Impact, sans-serif"
-MONO = "IBM Plex Mono, Menlo, monospace"
+FONT = "Nunito, -apple-system, BlinkMacSystemFont, sans-serif"
+DISPLAY = "Righteous, Trebuchet MS, sans-serif"
+MONO = "JetBrains Mono, Menlo, monospace"
 
 
 # ------------------------------------------------------------------- layout ---
@@ -73,7 +73,7 @@ def _title(fig: go.Figure, text: str) -> None:
     fig.update_layout(
         title=dict(
             text=text,
-            font=dict(family=DISPLAY, size=19, color=t.ASPHALT),
+            font=dict(family=DISPLAY, size=16, color=t.ASPHALT),
             x=0,
             xanchor="left",
             y=0.98,
@@ -143,7 +143,7 @@ def monthly_trend(monthly: pd.DataFrame, height: int = 330) -> go.Figure:
     _badge(fig, low["month"], low["sales"], f"<b>{low['month']:%b %Y}</b> · {an.money(low['sales'], compact=True, digits=2)}", yshift=-18)
     fig.update_xaxes(tickformat="%b %Y", nticks=9)
     fig.update_yaxes(title_text="Monthly gross sales", tickprefix="$", tickformat="~s", rangemode="tozero")
-    _title(fig, "Monthly gross sales · 48 months")
+    _title(fig, f"Monthly gross sales · {len(monthly)} months")
     return base(fig, height=height)
 
 
@@ -173,7 +173,7 @@ def category_donut(cats: pd.DataFrame, height: int = 330) -> go.Figure:
         hovertemplate="<b>%{label}</b><br>$%{value:,.0f}<br>%{customdata} days · %{percent}<extra></extra>",
     ))
     fig.add_annotation(
-        text=(f"<span style='font-family:{DISPLAY};font-size:36px;color:{t.ASPHALT};'>{top['share'] * 100:.1f}%</span>"
+        text=(f"<span style='font-family:{DISPLAY};font-size:30px;color:{t.ASPHALT};'>{top['share'] * 100:.1f}%</span>"
               f"<br><span style='font-family:{MONO};font-size:9px;color:{t.MUTED};letter-spacing:.12em;'>"
               f"{top['category'].upper()}</span>"),
         showarrow=False, x=0.5, y=0.5,
@@ -199,7 +199,7 @@ def daily_line(daily: pd.DataFrame, height: int = 360) -> go.Figure:
         hovertemplate="<b>%{x|%d %b %Y}</b><br>30-day avg $%{y:,.0f}<extra></extra>",
     ))
     fig.update_yaxes(title_text="Daily gross sales", tickprefix="$", tickformat="~s")
-    _title(fig, "Daily gross sales · 1,461 days")
+    _title(fig, f"Daily gross sales · {len(daily):,} days")
     return base(fig, height=height, legend=True)
 
 

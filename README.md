@@ -13,6 +13,8 @@ Daily gross sales forecasting from four years of sales records, presented as a m
 | Sales Forecaster | Live forecast from the saved Ridge model, with a feature-by-feature breakdown |
 | Insights | Seven takeaways and next steps |
 
+Overview, Sales Trends and Calendar & Seasonality share **year** and **product category** slicers in the sidebar. Year-only slices use the notebook's exact monthly totals; category slices use the reconstructed daily rows.
+
 ## How to run
 
 ```bash

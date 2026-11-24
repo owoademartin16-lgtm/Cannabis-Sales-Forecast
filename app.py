@@ -28,15 +28,24 @@ except Exception:
 
 
 def overview() -> None:
+    years, sel_cats = data_loader.selection()
+    filtered = data_loader.is_filtered(years, sel_cats)
     fig = data_loader.load_figures()
-    monthly = data_loader.monthly()
-    yearly = data_loader.yearly()
-    cats = data_loader.categories()
+    monthly = data_loader.filtered_monthly(years, sel_cats)
+    yearly = data_loader.filtered_yearly(years, sel_cats)
+    cats = data_loader.filtered_categories(years, sel_cats)
+    daily = data_loader.filtered_daily(years, sel_cats)
     models = data_loader.models()
-    total = yearly["sales"].sum()
-    growth = yearly["sales"].iloc[-1] / yearly["sales"].iloc[0] - 1
+    total = monthly["sales"].sum()
     peak = monthly.loc[monthly["sales"].idxmax()]
     desc = fig["describe_gross_sales"]
+    last = yearly.iloc[-1]
+    if filtered:
+        avg_value, avg_sub = an.money(daily["gross_sales"].mean()), (
+            f"median {an.money(daily['gross_sales'].median())} · reconstructed days")
+    else:
+        avg_value, avg_sub = an.money(desc["mean"]), (
+            f"median {an.money(desc['p50'])} · {fig['model_rows']:,} model days")
 
     theme.cover(
         "Four years of <em>retail cannabis</em>.",
@@ -46,11 +55,12 @@ def overview() -> None:
     theme.kpis(
         [
             {"label": "Gross sales", "value": an.money(total, compact=True, digits=1),
-             "sub": f"{fig['raw_rows']:,} days · 2021–2024", "accent": theme.ORANGE},
-            {"label": "2024 sales", "value": an.money(yearly['sales'].iloc[-1], compact=True, digits=1),
-             "sub": f"{yearly['growth'].iloc[-1]:+.1%} vs 2023", "accent": theme.YELLOW},
-            {"label": "Average day", "value": an.money(desc["mean"]),
-             "sub": f"median {an.money(desc['p50'])} · {fig['model_rows']:,} model days", "accent": theme.ORANGE},
+             "sub": (f"{len(daily):,} days · {data_loader.slice_label(years, sel_cats)}" if filtered
+                     else f"{fig['raw_rows']:,} days · 2021–2024"), "accent": theme.ORANGE},
+            {"label": f"{int(last['year'])} sales", "value": an.money(last['sales'], compact=True, digits=1),
+             "sub": ("no prior year in slice" if last["growth"] != last["growth"]
+                     else f"{last['growth']:+.1%} vs {int(last['year']) - 1}"), "accent": theme.YELLOW},
+            {"label": "Average day", "value": avg_value, "sub": avg_sub, "accent": theme.ORANGE},
             {"label": "Best month", "value": f"{peak['month']:%b %Y}",
              "sub": an.money(peak["sales"]), "accent": theme.YELLOW},
             {"label": "Top category", "value": cats.iloc[0]["category"],
@@ -75,6 +85,11 @@ def overview() -> None:
     with right:
         theme.chart(charts.model_metric(models, "r2", height=330))
 
+    if filtered:
+        st.caption(
+            f"Slice: {data_loader.slice_label(years, sel_cats)}. Year-only slices use the notebook's exact "
+            "monthly totals; category slices use the reconstructed daily rows, which add up to the notebook's totals."
+        )
     theme.note(
         "<b>Data source.</b> Every total on this page is copied from the printed outputs of "
         "<i>Cannabis Sales.ipynb</i>. The notebook's Massachusetts CCC download returned HTTP 404, "
@@ -93,6 +108,8 @@ pages = [
 ]
 
 navigation = st.navigation(pages, position="sidebar")
+if navigation.title in {"Overview", "Sales Trends", "Calendar & Seasonality"}:
+    data_loader.slicers()
 navigation.run()
 
 with st.sidebar:

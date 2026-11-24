@@ -12,10 +12,10 @@ import html
 import streamlit as st
 
 # ------------------------------------------------------------------ palette ---
-BG = "#F1F0E6"
-SURFACE = "#FCFCF6"
+BG = "#E2ECD6"
+SURFACE = "#FAFCF5"
 SURFACE_ALT = "#E3E7D6"
-BORDER = "#C9D0B8"
+BORDER = "#BCCDAE"
 BORDER_SOFT = "#DFE4D3"
 
 INK = "#10241B"
@@ -26,12 +26,12 @@ SUBTITLE = "#34403A"
 MUTED = "#5F6B63"
 FAINT = "#929C93"
 
-YELLOW = "#D9A93A"
+YELLOW = "#E0B23C"
 YELLOW_BRIGHT = "#F0C75E"
 YELLOW_SOFT = "#F3E3B5"
-ORANGE = "#2F8F5B"
-ORANGE_BRIGHT = "#3DB374"
-ORANGE_SOFT = "#D3ECDD"
+ORANGE = "#1F7A3F"
+ORANGE_BRIGHT = "#3FAE5A"
+ORANGE_SOFT = "#CFE8D2"
 TEAL = "#6E4F8F"
 TEAL_BRIGHT = "#8C6BB0"
 TEAL_SOFT = "#E6DDF0"
@@ -63,30 +63,58 @@ TEAL_SCALE = [
     [1.00, "#4A3266"],
 ]
 
+
+def _leaf(fill: str, stem: str | None = None) -> str:
+    """Seven-leaflet cannabis leaf as SVG markup (100×100 box, base at 50,82)."""
+    blades = [(0, 40), (-28, 34), (28, 34), (-58, 27), (58, 27), (-86, 17), (86, 17)]
+    paths = "".join(
+        f'<path transform="translate(50 82) rotate({a})" '
+        f'd="M0 0 C4.6 -{n * .3:.0f} 4.2 -{n * .72:.0f} 0 -{n} C-4.2 -{n * .72:.0f} -4.6 -{n * .3:.0f} 0 0Z"/>'
+        for a, n in blades
+    )
+    stem_line = f'<path d="M50 82 L50 96" stroke="{stem or fill}" stroke-width="2.4" stroke-linecap="round"/>'
+    return f'<g fill="{fill}">{paths}</g>{stem_line}'
+
+
+def _uri(svg: str) -> str:
+    return "data:image/svg+xml;base64," + base64.b64encode(svg.encode("utf-8")).decode("ascii")
+
+
+LEAF_PATTERN = _uri(
+    '<svg xmlns="http://www.w3.org/2000/svg" width="260" height="260" viewBox="0 0 260 260">'
+    f'<g transform="translate(18 10) rotate(-18 50 50) scale(.95)">{_leaf("rgba(31,122,63,.075)")}</g>'
+    f'<g transform="translate(150 140) rotate(24 50 50) scale(.72)">{_leaf("rgba(31,122,63,.06)")}</g>'
+    f'<g transform="translate(160 6) rotate(40 50 50) scale(.38)">{_leaf("rgba(224,178,60,.10)")}</g>'
+    f'<g transform="translate(30 176) rotate(-40 50 50) scale(.42)">{_leaf("rgba(224,178,60,.09)")}</g>'
+    "</svg>"
+)
+LEAF_GOLD = _uri(f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">{_leaf("#E0B23C")}</svg>')
+LEAF_MINT = _uri(f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">{_leaf("#9FD8A8")}</svg>')
+
 PLOTLY_CONFIG = {
     "displayModeBar": False,
     "responsive": True,
     "displaylogo": False,
 }
 
-CSS = """
+CSS_TEMPLATE = """
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=IBM+Plex+Mono:wght@400;500;600&family=Manrope:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Righteous&family=JetBrains+Mono:wght@400;500;600&family=Nunito:wght@400;500;600;700;800&display=swap');
 
 :root{
-  --bg:#F1F0E6; --surface:#FCFCF6; --surface-alt:#E3E7D6;
-  --border:#C9D0B8; --border-soft:#DFE4D3;
+  --bg:#E2ECD6; --surface:#FAFCF5; --surface-alt:#E3E7D6;
+  --border:#BCCDAE; --border-soft:#DFE4D3;
   --field:#EEF1E4; --field-hover:#E6EBDA;
   --ink:#10241B; --title:#10241B; --subtitle:#34403A;
   --muted:#5F6B63; --faint:#929C93;
   --asphalt:#10241B; --asphalt-2:#1B3A2C;
-  --yellow:#D9A93A; --yellow-bright:#F0C75E; --yellow-soft:#F3E3B5;
-  --orange:#2F8F5B; --orange-bright:#3DB374; --orange-soft:#D3ECDD;
+  --yellow:#E0B23C; --yellow-bright:#F0C75E; --yellow-soft:#F3E3B5;
+  --orange:#1F7A3F; --orange-bright:#3FAE5A; --orange-soft:#CFE8D2;
   --teal:#6E4F8F; --teal-bright:#8C6BB0; --teal-soft:#E6DDF0;
   --blue:#416B8A; --blue-soft:#DCE7EF;
-  --display:'Bebas Neue',Impact,sans-serif;
-  --sans:'Manrope',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
-  --mono:'IBM Plex Mono','SFMono-Regular',Menlo,monospace;
+  --display:'Righteous','Trebuchet MS',sans-serif;
+  --sans:'Nunito',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  --mono:'JetBrains Mono','SFMono-Regular',Menlo,monospace;
 }
 
 html, body, .stApp, [data-testid="stAppViewContainer"]{
@@ -571,8 +599,98 @@ div[data-testid="stVerticalBlockBorderWrapper"]{
   .cs-hero-meta{ display:none; }
   .cs-title{ font-size:2.1rem; }
 }
+
+/* ------------------------------------------------------------ weed skin --- */
+.stApp{
+  background-image:
+    radial-gradient(900px 460px at 0% -10%, rgba(224,178,60,.16), transparent 62%),
+    radial-gradient(800px 460px at 100% -8%, rgba(31,122,63,.14), transparent 60%),
+    url("__LEAF_PATTERN__") !important;
+  background-size:auto, auto, 260px 260px !important;
+  background-attachment:fixed !important;
+}
+[data-testid="stSidebar"]{
+  background:linear-gradient(180deg,#0E2A19 0%,#123722 60%,#0E2A19 100%) !important;
+  border-right:1px solid #0A1F12 !important;
+}
+[data-testid="stSidebar"]::before{
+  content:""; position:absolute; inset:0; pointer-events:none; opacity:.55;
+  background:url("__LEAF_PATTERN__"); background-size:200px 200px;
+  filter:brightness(2.2) saturate(.6);
+}
+[data-testid="stSidebarNav"] span, [data-testid="stSidebarNav"] a{ color:#D6E9D2 !important; }
+[data-testid="stSidebarNav"] a:hover{ background:rgba(255,255,255,.07) !important; }
+[data-testid="stSidebarNav"] a[aria-current="page"]{
+  background:linear-gradient(90deg, rgba(224,178,60,.32), rgba(224,178,60,.06)) !important;
+  box-shadow:inset 3px 0 0 var(--yellow) !important;
+}
+[data-testid="stSidebarNav"] a[aria-current="page"] span{ color:#FFF3CF !important; }
+[data-testid="stSidebar"] hr{ border-color:rgba(255,255,255,.14) !important; }
+[data-testid="stSidebar"] .cs-side-label{ color:#9FD8A8; }
+[data-testid="stSidebar"] .cs-side-stat{ color:#C9DEC6; border-bottom-color:rgba(255,255,255,.14); }
+[data-testid="stSidebar"] .cs-side-stat b{ color:#F3D98A; }
+[data-testid="stSidebar"] .cs-side-plate{
+  background:rgba(255,255,255,.06); border-color:rgba(255,255,255,.16); color:#A9C4A8;
+}
+[data-testid="stSidebar"] .cs-side-plate b{ color:#F3D98A; }
+[data-testid="stSidebar"] label, [data-testid="stSidebar"] [data-testid="stWidgetLabel"] p{
+  color:#D6E9D2 !important; font-weight:700 !important;
+}
+[data-testid="stSidebar"] [data-testid="stCaptionContainer"]{ color:#A9C4A8 !important; }
+
+[data-testid="stSidebar"] button[data-variant="pills"]{
+  background:rgba(255,255,255,.04) !important; border:1px solid rgba(214,233,210,.28) !important;
+  color:#A9C4A8 !important;
+}
+[data-testid="stSidebar"] button[data-variant="pills"] p{ color:#A9C4A8 !important; }
+[data-testid="stSidebar"] button[data-variant="pills"][aria-pressed="true"]{
+  background:var(--yellow) !important; border:1px solid var(--yellow) !important; color:#0E2A19 !important;
+}
+[data-testid="stSidebar"] button[data-variant="pills"][aria-pressed="true"] p{ color:#0E2A19 !important; font-weight:800 !important; }
+
+/* KPI tiles: dark leaf cards */
+.cs-kpis{ gap:12px; }
+.cs-kpi{
+  background:
+    radial-gradient(160px 90px at 100% 0%, rgba(224,178,60,.18), transparent 70%),
+    linear-gradient(150deg,#123B24 0%,#0D2B1A 100%);
+  border:1px solid rgba(159,216,168,.22); border-radius:20px;
+  padding:14px 16px 13px; color:#EAF5E4;
+  box-shadow:0 18px 30px -24px rgba(9,30,17,.9);
+}
+.cs-kpi::before{
+  left:16px; right:16px; top:0; bottom:auto; width:auto; height:3px;
+  border-radius:0 0 4px 4px; background:var(--accent,var(--yellow));
+}
+.cs-kpi::after{
+  right:-14px; top:auto; bottom:-16px; width:78px; height:78px;
+  background:url("__LEAF_GOLD__") no-repeat center/contain; opacity:.13;
+  transform:rotate(-22deg);
+}
+.cs-kpi-label{ color:#9FD8A8; font-weight:600; padding-right:0; }
+.cs-kpi-label::before{
+  content:""; display:inline-block; width:11px; height:11px; margin-right:6px; vertical-align:-1px;
+  background:url("__LEAF_MINT__") no-repeat center/contain;
+}
+.cs-kpi-value{ color:#FFF3CF; font-size:clamp(21px,2vw,29px); line-height:1.05; letter-spacing:0; }
+.cs-kpi-sub{ color:#B5CDB1; position:relative; z-index:1; }
+
+/* type scale for Righteous */
+.cs-title{ font-size:clamp(1.9rem,3.6vw,3.1rem) !important; letter-spacing:0 !important; line-height:1.02 !important; }
+.cs-cover-title{ letter-spacing:0 !important; line-height:1.05 !important; }
+.cs-cover.slim .cs-cover-title{ font-size:clamp(1.7rem,2.9vw,2.5rem) !important; }
+.cs-section h3{ font-size:23px !important; letter-spacing:.01em !important; }
+.cs-cover::after{
+  content:""; position:absolute; right:22px; top:50%; width:96px; height:96px; transform:translateY(-50%) rotate(14deg);
+  background:url("__LEAF_GOLD__") no-repeat center/contain; opacity:.22; pointer-events:none;
+}
+.cs-cover{ background:rgba(250,252,245,.92); }
 </style>
 """
+
+
+CSS = (CSS_TEMPLATE.replace("__LEAF_PATTERN__", LEAF_PATTERN)
+       .replace("__LEAF_GOLD__", LEAF_GOLD).replace("__LEAF_MINT__", LEAF_MINT))
 
 
 def inject() -> None:

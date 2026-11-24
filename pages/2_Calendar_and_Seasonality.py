@@ -15,12 +15,14 @@ from utils import analysis as an  # noqa: E402
 from utils import charts, data_loader, theme  # noqa: E402
 
 fig = data_loader.load_figures()
-monthly = data_loader.monthly()
-daily = data_loader.load_daily()
-cats = data_loader.categories()
+years, sel_cats = data_loader.selection()
+filtered = data_loader.is_filtered(years, sel_cats)
+monthly = data_loader.filtered_monthly(years, sel_cats)
+daily = data_loader.filtered_daily(years, sel_cats)
+cats = data_loader.filtered_categories(years, sel_cats)
 corr = fig["correlations"]
 
-model_days = daily.iloc[30:]
+model_days = daily[daily["date"] >= "2021-01-31"]
 weekend = model_days[model_days["dow"] >= 5]["gross_sales"].mean()
 weekday = model_days[model_days["dow"] < 5]["gross_sales"].mean()
 q4 = model_days[model_days["month"] >= 10]["gross_sales"].mean()
@@ -94,7 +96,10 @@ with right:
             [["Category", "Total", "Share", "Days", "Mean", "Min", "Max"]],
         {"Total": "${:,.0f}", "Share": "{:.1%}", "Mean": "${:,.2f}", "Min": "${:,.2f}", "Max": "${:,.2f}"},
         )
-        st.caption("Flower leads by about $8M, but its average day is only 2.6% above Concentrates.")
+        if filtered:
+            st.caption(f"Slice: {data_loader.slice_label(years, sel_cats)}.")
+        else:
+            st.caption("Flower leads by about $8M, but its average day is only 2.6% above Concentrates.")
 
 st.caption("Day-of-week, Q4 and month-edge averages use the reconstructed daily series (model rows, 31 Jan 2021 onward).")
 theme.footer()

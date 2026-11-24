@@ -15,13 +15,16 @@ from utils import analysis as an  # noqa: E402
 from utils import charts, data_loader, theme  # noqa: E402
 
 fig = data_loader.load_figures()
-monthly = data_loader.monthly()
-quarterly = data_loader.quarterly()
-yearly = data_loader.yearly()
-daily = data_loader.load_daily()
+years, sel_cats = data_loader.selection()
+filtered = data_loader.is_filtered(years, sel_cats)
+monthly = data_loader.filtered_monthly(years, sel_cats)
+quarterly = data_loader.filtered_quarterly(years, sel_cats)
+yearly = data_loader.filtered_yearly(years, sel_cats)
+daily = data_loader.filtered_daily(years, sel_cats)
 
 q4_share = quarterly[quarterly["quarter"].str.endswith("Q4")]["sales"].sum() / quarterly["sales"].sum()
-cagr = (yearly["sales"].iloc[-1] / yearly["sales"].iloc[0]) ** (1 / 3) - 1
+span = int(yearly["year"].iloc[-1] - yearly["year"].iloc[0])
+cagr = (yearly["sales"].iloc[-1] / yearly["sales"].iloc[0]) ** (1 / span) - 1 if span else None
 best_q = quarterly.loc[quarterly["sales"].idxmax()]
 low = monthly.loc[monthly["sales"].idxmin()]
 
@@ -30,7 +33,7 @@ theme.header(
     "Gross sales climbed every year, from $45.7M in 2021 to $100.5M in 2024, with a steady "
     "seasonal wave on top of the growth line.",
     pills=[
-        f"<b>{cagr:.1%}</b> compound annual growth",
+        f"<b>{'—' if cagr is None else f'{cagr:.1%}'}</b> compound annual growth",
         f"<b>{best_q['quarter']}</b> best quarter",
         f"<b>{q4_share:.1%}</b> of sales in Q4s",
     ],
@@ -40,7 +43,7 @@ theme.header(
 theme.kpis(
     [
         {"label": f"{int(r.year)} sales", "value": an.money(r.sales, compact=True, digits=1),
-         "sub": "first year" if r.Index == 0 else f"{r.growth:+.1%} year on year",
+         "sub": "no prior year in slice" if r.growth != r.growth else f"{r.growth:+.1%} year on year",
          "accent": charts.YEAR_COLORS[int(r.year)]}
         for r in yearly.itertuples()
     ]
@@ -53,8 +56,10 @@ theme.kpis(
 
 theme.section(
     "Monthly totals",
-    "All 48 monthly totals exactly as printed by the notebook's <code>monthly_sales</code> cell.",
-    kicker="Notebook output",
+    (f"{len(monthly)} monthly totals exactly as printed by the notebook's <code>monthly_sales</code> cell."
+     if data_loader.all_cats(sel_cats) else
+     f"{len(monthly)} monthly totals for {', '.join(sel_cats)}, summed from the reconstructed daily rows."),
+    kicker=("Slice · " + data_loader.slice_label(years, sel_cats)) if filtered else "Notebook output",
 )
 theme.chart(charts.monthly_trend(monthly, height=340))
 
