@@ -229,6 +229,10 @@ a{ color:var(--teal); }
   background:linear-gradient(180deg,var(--orange) 0%,var(--orange) 55%,var(--yellow) 55%,var(--yellow) 100%);
 }
 .cs-cover-text{ padding:1.6rem 1.8rem 1.5rem 2.2rem; }
+.cs-cover.slim{ grid-template-columns:1fr; }
+.cs-cover.slim .cs-cover-text{ padding:1.1rem 1.6rem 1.1rem 2rem; }
+.cs-cover.slim .cs-cover-eyebrow{ margin-bottom:8px; }
+.cs-cover.slim .cs-cover-title{ font-size:clamp(2rem,3.4vw,2.9rem); margin-bottom:6px; }
 .cs-cover-eyebrow{
   display:flex; align-items:center; gap:10px; margin-bottom:14px;
   font-family:var(--mono); font-size:9.5px; letter-spacing:.2em; text-transform:uppercase; color:var(--muted);
@@ -643,11 +647,25 @@ def header(
     )
 
 
-def cover(title: str, lede: str, stats: list[tuple[str, str]], trend: list[tuple[str, float]],
+def cover(title: str, lede: str, stats: list[tuple[str, str]] | None = None,
+          trend: list[tuple[str, float]] | None = None,
           *, eyebrow: str = "CANNABIS RETAIL · DAILY GROSS SALES · 2021–2024",
           trend_label: str = "Gross sales by year") -> None:
-    """Overview banner: headline on the left, stat ledger and yearly trend line on the right."""
+    """Overview banner: headline, with an optional stat ledger and yearly trend line on the right."""
     inject()
+    if not stats:
+        st.html(
+            f"""
+            <div class="cs-cover slim">
+              <div class="cs-cover-text">
+                <div class="cs-cover-eyebrow">{html.escape(eyebrow)}</div>
+                <h1 class="cs-cover-title">{title}</h1>
+                <p class="cs-cover-lede">{lede}</p>
+              </div>
+            </div>
+            """
+        )
+        return
     cells = "".join(f'<div class="cs-cover-stat"><b>{v}</b><span>{html.escape(k)}</span></div>' for v, k in stats)
     w, h, pad = 300, 74, 18
     vals = [v for _, v in trend]

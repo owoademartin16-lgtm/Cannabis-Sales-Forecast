@@ -39,16 +39,8 @@ def overview() -> None:
     desc = fig["describe_gross_sales"]
 
     theme.cover(
-        "Four years of <em>retail cannabis</em>, day by day.",
-        "Daily gross sales from January 2021 to December 2024: how fast the business grew, "
-        "which products carried it, and how well a simple Ridge model forecasts tomorrow.",
-        stats=[
-            (an.money(total, compact=True, digits=1), "gross sales"),
-            (f"{growth:+.0%}", "2024 vs 2021"),
-            (an.money(desc["mean"]), "average model day"),
-            ("0.900", "Ridge R² · unseen 2024"),
-        ],
-        trend=[(str(int(y)), float(v)) for y, v in zip(yearly["year"], yearly["sales"])],
+        "Four years of <em>retail cannabis</em>.",
+        "Daily gross sales, 2021–2024, with a Ridge forecast.",
     )
 
     theme.kpis(
