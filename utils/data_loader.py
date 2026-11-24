@@ -107,16 +107,19 @@ def slicers() -> None:
     """Sidebar year / category slicers; the choice persists across pages."""
     years = st.session_state.get("f_years", YEARS)
     cats = st.session_state.get("f_cats", CATEGORIES)
+    v = st.session_state.get("f_version", 0)
+    wy, wc = f"_w_years_{v}", f"_w_cats_{v}"
     with st.sidebar:
         st.html('<div class="cs-side-label">Slicers</div>')
-        st.pills("Year", YEARS, selection_mode="multi", default=years, key="_w_years",
-                 on_change=_keep, args=("_w_years", "f_years"))
-        st.pills("Product category", CATEGORIES, selection_mode="multi", default=cats, key="_w_cats",
-                 on_change=_keep, args=("_w_cats", "f_cats"))
+        st.pills("Year", YEARS, selection_mode="multi", default=years, key=wy,
+                 on_change=_keep, args=(wy, "f_years"))
+        st.pills("Product category", CATEGORIES, selection_mode="multi", default=cats, key=wc,
+                 on_change=_keep, args=(wc, "f_cats"))
         if set(years) != set(YEARS) or set(cats) != set(CATEGORIES):
             if st.button("Reset slicers", icon=":material/restart_alt:", use_container_width=True):
-                for key in ("f_years", "f_cats", "_w_years", "_w_cats"):
+                for key in ("f_years", "f_cats", wy, wc):
                     st.session_state.pop(key, None)
+                st.session_state["f_version"] = v + 1
                 st.rerun()
 
 
