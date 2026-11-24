@@ -82,7 +82,7 @@ with result_col:
     theme.forecast_card(
         value, low, high, date.strftime("%a %d %b %Y"),
         value / an.TYPICAL_DAY - 1,
-        value / st.session_state["lag_1"] - 1 if st.session_state["lag_1"] else 0.0,
+        value / st.session_state["lag_1"] - 1 if st.session_state["lag_1"] else None,
         an.season(date.month),
         "Weekend" if date.weekday() >= 5 else "Weekday",
     )

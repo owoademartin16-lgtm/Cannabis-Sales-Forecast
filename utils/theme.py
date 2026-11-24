@@ -666,7 +666,7 @@ def forecast_card(
     high: float,
     date_label: str,
     vs_typical: float,
-    vs_yesterday: float,
+    vs_yesterday: float | None,
     season: str,
     day_type: str,
 ) -> None:
@@ -681,7 +681,7 @@ def forecast_card(
           <div class="meta">
             <div><span>Date</span><b>{html.escape(date_label)}</b></div>
             <div><span>vs typical day</span><b>{vs_typical:+.1%}</b></div>
-            <div><span>vs yesterday</span><b>{vs_yesterday:+.1%}</b></div>
+            <div><span>vs yesterday</span><b>{'—' if vs_yesterday is None else f'{vs_yesterday:+.1%}'}</b></div>
           </div>
           <div class="meta" style="margin-top:10px;padding-top:10px;">
             <div><span>Season</span><b>{html.escape(season)}</b></div>
