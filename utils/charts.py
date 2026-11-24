@@ -262,7 +262,8 @@ def dow_bars(daily: pd.DataFrame, height: int = 330) -> go.Figure:
 
 def month_of_year(monthly: pd.DataFrame, height: int = 330) -> go.Figure:
     df = monthly.copy()
-    df["days"] = df["month"].dt.days_in_month
+    if "days" not in df:
+        df["days"] = df["month"].dt.days_in_month
     totals = df.groupby("month_num")[["sales", "days"]].sum()
     g = totals["sales"] / totals["days"]
     colors = [t.YELLOW if m >= 10 else _rgba(t.ORANGE, 0.75) for m in g.index]

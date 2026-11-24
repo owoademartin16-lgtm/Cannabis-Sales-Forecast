@@ -152,8 +152,8 @@ def filtered_monthly(years: list[int], cats: list[str]) -> pd.DataFrame:
         m = monthly()
         return m[m["year"].isin(years)].reset_index(drop=True)
     d = filtered_daily(years, cats)
-    m = d.groupby(d["date"].dt.to_period("M").dt.to_timestamp())["gross_sales"].sum().reset_index()
-    m.columns = ["month", "sales"]
+    m = d.groupby(d["date"].dt.to_period("M").dt.to_timestamp())["gross_sales"].agg(["sum", "count"]).reset_index()
+    m.columns = ["month", "sales", "days"]
     m["year"] = m["month"].dt.year
     m["month_num"] = m["month"].dt.month
     return m
