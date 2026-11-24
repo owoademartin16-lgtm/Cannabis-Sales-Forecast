@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="360" height="96" viewBox="0 0 360 96" role="img" aria-label="Cannabis Sales dashboard">
+  <rect x="1" y="10" width="358" height="76" rx="16" fill="#10241B"/>
+  <rect x="1" y="10" width="358" height="76" rx="16" fill="none" stroke="#1D4630"/>
+  <rect x="17" y="22" width="54" height="52" rx="10" fill="#D9A93A"/>
+  <g fill="#10241B">
+    <path d="M44 28c-3 8-3 15 0 24 3-9 3-16 0-24z"/>
+    <path d="M44 54c-6-6-12-8-19-8 3 7 10 10 19 8z"/>
+    <path d="M44 54c6-6 12-8 19-8-3 7-10 10-19 8z"/>
+    <path d="M44 57c-5-1-10 1-13 5 5 1 10 0 13-5zM44 57c5-1 10 1 13 5-5 1-10 0-13-5z"/>
+  </g>
+  <path d="M44 56v12" stroke="#10241B" stroke-width="3" stroke-linecap="round"/>
+  <text x="86" y="52" font-family="Bebas Neue, Impact, sans-serif" font-size="26" letter-spacing="1" fill="#F7F5EA">CANNABIS SALES</text>
+  <text x="87" y="70" font-family="IBM Plex Mono, Menlo, monospace" font-size="10.5" letter-spacing="2.2" fill="#D9A93A">FORECAST INTELLIGENCE</text>
+</svg>
