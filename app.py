@@ -45,7 +45,7 @@ def overview() -> None:
         pills=[
             f"<b>{an.money(total, compact=True, digits=1)}</b> gross sales",
             f"<b>{growth:+.0%}</b> 2024 vs 2021",
-            f"<b>{an.money(desc['mean'])}</b> average day",
+            f"<b>{an.money(desc['mean'])}</b> average model day",
             "<b>R² 0.900</b> Ridge on unseen 2024",
         ],
         icon="dashboard",
@@ -58,7 +58,7 @@ def overview() -> None:
             {"label": "2024 sales", "value": an.money(yearly['sales'].iloc[-1], compact=True, digits=1),
              "sub": f"{yearly['growth'].iloc[-1]:+.1%} vs 2023", "accent": theme.YELLOW},
             {"label": "Average day", "value": an.money(desc["mean"]),
-             "sub": f"median {an.money(desc['p50'])}", "accent": theme.ORANGE},
+             "sub": f"median {an.money(desc['p50'])} · {fig['model_rows']:,} model days", "accent": theme.ORANGE},
             {"label": "Best month", "value": f"{peak['month']:%b %Y}",
              "sub": an.money(peak["sales"]), "accent": theme.YELLOW},
             {"label": "Top category", "value": cats.iloc[0]["category"],
