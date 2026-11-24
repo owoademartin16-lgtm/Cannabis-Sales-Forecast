@@ -186,7 +186,8 @@ def category_donut(cats: pd.DataFrame, height: int = 330) -> go.Figure:
 
 
 def daily_line(daily: pd.DataFrame, height: int = 360) -> go.Figure:
-    roll = daily["gross_sales"].rolling(30).mean()
+    series = daily.set_index("date")["gross_sales"]
+    roll = series.rolling("30D").mean().where(series.index >= series.index[0] + pd.Timedelta(days=29)).values
     fig = go.Figure()
     fig.add_trace(go.Scatter(
         x=daily["date"], y=daily["gross_sales"], mode="lines", name="Daily gross sales",
