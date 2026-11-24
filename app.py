@@ -90,11 +90,6 @@ def overview() -> None:
             f"Slice: {data_loader.slice_label(years, sel_cats)}. Year-only slices use the notebook's exact "
             "monthly totals; category slices use the reconstructed daily rows, which add up to the notebook's totals."
         )
-    theme.note(
-        "<b>Data source.</b> Every total on this page is copied from the printed outputs of "
-        "<i>Cannabis Sales.ipynb</i>. The notebook's Massachusetts CCC download returned HTTP 404, "
-        "so its figures come from the notebook's built-in simulated sales series."
-    )
     theme.footer()
 
 
