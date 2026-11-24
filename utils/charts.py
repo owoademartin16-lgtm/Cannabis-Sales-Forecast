@@ -383,7 +383,7 @@ def first_ten(rows: list[dict], height: int = 320) -> go.Figure:
                              hovertemplate="<b>%{x|%d %b}</b><br>predicted $%{y:,.0f}<extra></extra>"))
     fig.update_xaxes(tickformat="%d %b")
     fig.update_yaxes(tickprefix="$", tickformat="~s")
-    _title(fig, "First 10 test days · notebook output")
+    _title(fig, "First 10 test days · Linear Regression (notebook output)")
     return base(fig, height=height, legend=True)
 
 

@@ -92,7 +92,8 @@ with right:
 
 first = pd.DataFrame(fig["first_test_predictions"])
 first["error"] = first["actual"] - first["predicted"]
-with st.expander("First 10 test days · exact notebook values"):
+st.caption("The notebook printed its first 10 test-day predictions from Linear Regression (`lr_pred`), not Ridge. The two models' scores differ by about $1 MAE.")
+with st.expander("First 10 test days · Linear Regression, exact notebook values"):
     theme.table(
         first.rename(columns={"date": "Date", "actual": "Actual", "predicted": "Predicted", "error": "Error"}),
         {"Actual": "${:,.2f}", "Predicted": "${:,.2f}", "Error": "${:,.2f}"},
