@@ -24,6 +24,7 @@ recon = data_loader.load_reconstruction()
 
 LAST_DATE = daily["date"].max().date()
 FIRST_DATE = (daily["date"].min() + pd.Timedelta(days=30)).date()
+LOADABLE_UNTIL = LAST_DATE + dt.timedelta(days=1)
 FIELDS = ["lag_1", "lag_7", "lag_30", "rolling_7", "rolling_30"]
 
 theme.header(
@@ -38,13 +39,19 @@ theme.header(
 
 
 def load_history(date: dt.date) -> None:
+    if date > LOADABLE_UNTIL:
+        return
     values = an.recent_inputs(daily, date)
     for k in FIELDS:
         st.session_state[k] = round(values[k], 2)
 
 
+def on_date_change() -> None:
+    load_history(st.session_state["date"])
+
+
 if "lag_1" not in st.session_state:
-    st.session_state["date"] = LAST_DATE + dt.timedelta(days=1)
+    st.session_state["date"] = LOADABLE_UNTIL
     load_history(st.session_state["date"])
 
 form_col, result_col = st.columns([0.9, 1.1], gap="large")
@@ -52,8 +59,10 @@ with form_col:
     with st.container(border=True):
         st.html('<div class="cs-kicker">Forecast inputs</div>')
         date = st.date_input("Date to forecast", key="date", min_value=FIRST_DATE,
-                             max_value=dt.date(2026, 12, 31), format="YYYY-MM-DD")
-        if st.button("Load recent sales from the data", icon=":material/history:", use_container_width=True):
+                             max_value=dt.date(2026, 12, 31), format="YYYY-MM-DD", on_change=on_date_change)
+        loadable = date <= LOADABLE_UNTIL
+        if st.button("Load recent sales from the data", icon=":material/history:", use_container_width=True,
+                     disabled=not loadable):
             load_history(date)
             st.rerun()
         a, b = st.columns(2)
@@ -77,9 +86,9 @@ with result_col:
         an.season(date.month),
         "Weekend" if date.weekday() >= 5 else "Weekday",
     )
-    if date > LAST_DATE + dt.timedelta(days=1):
-        st.warning("This date is past the end of the data (31 Dec 2024). Enter the recent sales yourself; "
-                   "loaded values stop at the last day of data.", icon=":material/info:")
+    if not loadable:
+        st.warning("The data ends on 31 Dec 2024, so recent sales can only be loaded for dates up to "
+                   "1 Jan 2025. For later dates, enter the recent sales yourself.", icon=":material/info:")
 
 left, right = st.columns(2, gap="medium")
 with left:
