@@ -418,11 +418,17 @@ def correlations(corr: dict, height: int = 400) -> go.Figure:
 
 def contribution_bars(contrib: pd.DataFrame, intercept: float, total: float, height: int = 420) -> go.Figure:
     df = contrib.reindex(contrib["contribution"].abs().sort_values(ascending=False).index)
+    labels = ["Intercept"] + df["feature"].tolist()
+    values = [intercept] + df["contribution"].tolist()
+    floor = total - sum(values)
+    if floor > 0.5:
+        labels.append("Floor at $0")
+        values.append(floor)
     fig = go.Figure(go.Waterfall(
         orientation="h",
-        y=["Intercept"] + df["feature"].tolist() + ["Forecast"],
-        x=[intercept] + df["contribution"].tolist() + [total],
-        measure=["absolute"] + ["relative"] * len(df) + ["total"],
+        y=labels + ["Forecast"],
+        x=values + [total],
+        measure=["absolute"] + ["relative"] * (len(values) - 1) + ["total"],
         increasing=dict(marker=dict(color=t.ORANGE)), decreasing=dict(marker=dict(color=t.TEAL_BRIGHT)),
         totals=dict(marker=dict(color=t.YELLOW)), connector=dict(line=dict(color=t.BORDER, width=1)),
         hovertemplate="<b>%{y}</b><br>$%{x:,.0f}<extra></extra>",
