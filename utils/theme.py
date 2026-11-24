@@ -218,6 +218,57 @@ a{ color:var(--teal); }
 }
 .cs-hero-pill b{ color:var(--yellow); font-weight:600; }
 
+/* ------------------------------------------------------------------ cover --- */
+.cs-cover{
+  position:relative; display:grid; grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);
+  background:var(--surface); border:1px solid var(--border); border-radius:18px;
+  overflow:hidden; margin-bottom:1.1rem; box-shadow:0 14px 30px -26px rgba(16,36,27,.55);
+}
+.cs-cover::before{
+  content:""; position:absolute; left:0; top:0; bottom:0; width:6px;
+  background:linear-gradient(180deg,var(--orange) 0%,var(--orange) 55%,var(--yellow) 55%,var(--yellow) 100%);
+}
+.cs-cover-text{ padding:1.6rem 1.8rem 1.5rem 2.2rem; }
+.cs-cover-eyebrow{
+  display:flex; align-items:center; gap:10px; margin-bottom:14px;
+  font-family:var(--mono); font-size:9.5px; letter-spacing:.2em; text-transform:uppercase; color:var(--muted);
+}
+.cs-cover-eyebrow::after{ content:""; flex:1; height:1px; background:var(--border); }
+.cs-cover-title{
+  font-family:var(--display) !important; font-weight:400; text-transform:uppercase;
+  font-size:clamp(2.3rem,4.2vw,3.7rem); line-height:.95; letter-spacing:.01em;
+  color:var(--asphalt); margin:0 0 12px;
+}
+.cs-cover-title em{
+  font-style:normal; color:var(--orange);
+  background:linear-gradient(transparent 68%, rgba(217,169,58,.45) 68%);
+}
+.cs-cover-lede{ margin:0; max-width:620px; color:var(--subtitle); font-size:13.5px; line-height:1.7; }
+.cs-cover-stats{
+  background:#12301F; color:#F7F5EA; padding:1.25rem 1.4rem 1rem;
+  display:flex; flex-direction:column; justify-content:space-between; gap:12px;
+}
+.cs-cover-grid{ display:grid; grid-template-columns:1fr 1fr; }
+.cs-cover-stat{ padding:10px 12px; border-bottom:1px solid rgba(255,255,255,.12); }
+.cs-cover-stat:nth-child(odd){ border-right:1px solid rgba(255,255,255,.12); }
+.cs-cover-stat:nth-last-child(-n+2){ border-bottom:none; }
+.cs-cover-stat b{
+  display:block; font-family:var(--display); font-weight:400; font-size:2.05rem; line-height:1;
+  color:var(--yellow); letter-spacing:.01em;
+}
+.cs-cover-stat span{
+  display:block; margin-top:5px; font-family:var(--mono); font-size:9.5px;
+  letter-spacing:.12em; text-transform:uppercase; color:#B9C9BE;
+}
+.cs-cover-spark{ border-top:1px dashed rgba(255,255,255,.18); padding-top:8px; }
+.cs-cover-spark-label{
+  font-family:var(--mono); font-size:9px; letter-spacing:.16em; text-transform:uppercase; color:#B9C9BE;
+}
+.cs-cover-spark img{ width:100%; height:auto; max-height:96px; display:block; margin-top:4px; }
+@media (max-width:900px){
+  .cs-cover{ grid-template-columns:1fr; }
+}
+
 /* ------------------------------------------------------------------- kpis --- */
 .cs-kpis{
   display:grid; grid-template-columns:repeat(var(--cols,6),minmax(0,1fr));
@@ -587,6 +638,50 @@ def header(
             </div>
           </div>
           <div class="cs-hero-pills">{pill_html}</div>
+        </div>
+        """
+    )
+
+
+def cover(title: str, lede: str, stats: list[tuple[str, str]], trend: list[tuple[str, float]],
+          *, eyebrow: str = "CANNABIS RETAIL · DAILY GROSS SALES · 2021–2024",
+          trend_label: str = "Gross sales by year") -> None:
+    """Overview banner: headline on the left, stat ledger and yearly trend line on the right."""
+    inject()
+    cells = "".join(f'<div class="cs-cover-stat"><b>{v}</b><span>{html.escape(k)}</span></div>' for v, k in stats)
+    w, h, pad = 300, 74, 18
+    vals = [v for _, v in trend]
+    lo, hi = min(vals), max(vals)
+    pts = [(pad + i * (w - 2 * pad) / max(len(vals) - 1, 1),
+            12 + (h - 30) * (1 - (v - lo) / ((hi - lo) or 1))) for i, v in enumerate(vals)]
+    line = " ".join(f"{x:.1f},{y:.1f}" for x, y in pts)
+    area = f"{pts[0][0]:.1f},{h - 16} " + line + f" {pts[-1][0]:.1f},{h - 16}"
+    dots = "".join(
+        f'<circle cx="{x:.1f}" cy="{y:.1f}" r="3.5" fill="{YELLOW}"/>'
+        f'<text x="{x:.1f}" y="{h - 3}" text-anchor="middle" font-size="9" fill="#B9C9BE" '
+        f'font-family="IBM Plex Mono, monospace">{html.escape(lbl)}</text>'
+        for (x, y), (lbl, _) in zip(pts, trend)
+    )
+    svg = (f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {w} {h}">'
+           f'<polygon points="{area}" fill="rgba(217,169,58,.14)"/>'
+           f'<polyline points="{line}" fill="none" stroke="{YELLOW}" stroke-width="2"/>{dots}</svg>')
+    svg = ('<img alt="" aria-hidden="true" src="data:image/svg+xml;base64,'
+           + base64.b64encode(svg.encode("utf-8")).decode("ascii") + '" />')
+    st.html(
+        f"""
+        <div class="cs-cover">
+          <div class="cs-cover-text">
+            <div class="cs-cover-eyebrow">{html.escape(eyebrow)}</div>
+            <h1 class="cs-cover-title">{title}</h1>
+            <p class="cs-cover-lede">{lede}</p>
+          </div>
+          <div class="cs-cover-stats">
+            <div class="cs-cover-grid">{cells}</div>
+            <div class="cs-cover-spark">
+              <div class="cs-cover-spark-label">{html.escape(trend_label)}</div>
+              {svg}
+            </div>
+          </div>
         </div>
         """
     )

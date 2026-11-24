@@ -38,17 +38,17 @@ def overview() -> None:
     peak = monthly.loc[monthly["sales"].idxmax()]
     desc = fig["describe_gross_sales"]
 
-    theme.header(
+    theme.cover(
         "Four years of <em>retail cannabis</em>, day by day.",
         "Daily gross sales from January 2021 to December 2024: how fast the business grew, "
         "which products carried it, and how well a simple Ridge model forecasts tomorrow.",
-        pills=[
-            f"<b>{an.money(total, compact=True, digits=1)}</b> gross sales",
-            f"<b>{growth:+.0%}</b> 2024 vs 2021",
-            f"<b>{an.money(desc['mean'])}</b> average model day",
-            "<b>R² 0.900</b> Ridge on unseen 2024",
+        stats=[
+            (an.money(total, compact=True, digits=1), "gross sales"),
+            (f"{growth:+.0%}", "2024 vs 2021"),
+            (an.money(desc["mean"]), "average model day"),
+            ("0.900", "Ridge R² · unseen 2024"),
         ],
-        icon="dashboard",
+        trend=[(str(int(y)), float(v)) for y, v in zip(yearly["year"], yearly["sales"])],
     )
 
     theme.kpis(
